@@ -1,0 +1,43 @@
+Task 1: Display the current day of year
+Get-Date |Select-Object DayOfYear
+Get-Date | Select Object DayOfYear | Format-Table 
+Task 2: Display Informaton about installed hotfixes
+Get-Command *hotfix*
+Get-HotFix | Get-Member
+Get-HotFix |Select-Object InstalledOn, HotFixID, InstalledBy
+Get-HotFix | Select-Object HotFixID, @{Name='DaysSinceInstalled';Expression={(New-TimeSpan-Start $_.InstalledOn -End (Get-Date)).Days}},InstalledBy
+
+Task 3: Display available IPv4 DHCP scopes
+Get-Command *dhcp*scope*
+Get-Help Get-DhcpServerv4Scope
+Get-DhcpServerv4Scope -ComputerName LON-DC1
+Get-DhcpServerv4Scope -ComputerName LON-DC1 |Format-List ScopeId, SubnetMask, Name
+
+Task 4: Display a sorted list of enabled Windows Firewall rules
+Get-Command -Name *rule*
+Get-NetFirewallRule
+Get-Help Get-NetFirewallRule -Full 
+Get-NetFirewallRule |Format-Table -AutoSize -Wrap
+Get-NetFirewallRule -Enabled True |Select-Object DisplayName, Profile, Direction, Action | Sort-Object Profile, Display | Format-Table -GroupBy Profile -AutoSize -Wrap
+
+Task 5: Display sorted list of network neighbors
+Get-Command -Name *neighbor*
+Get-Help Get-NetNeighbor -Full
+Get-NetNeighbor
+Get-NetNeighbor | Sort-Object -Property State 
+Get-NetNeighbor | Sort-Object -Project State | Format-Wide -Property IPAddress -GroupBy State -AutoSize
+
+Task 6: Display information from DNS resolution cache
+Get-Command -Name *cache*
+Get-DnsClientCache
+Get-DnsClientCache | Sort-Object -Property Name | Select-Object -Property Name, Type, TimeToLive | Format-List
+
+Task: Update Active Directory user information
+Get-Command -Name *ADUser*
+Get-Help Set-ADUser -Full
+Get-ADUser -Identity <SamAccountName> -Properties Department, Title | Select-Object SamAccountName, Department, Title
+Set-ADUser -Identity <SamAccountName> -Department '<Department>' -Title '<Title>' -WhatIf
+
+Task 8: Produce an HTML report listing Active Directory users in IT department
+Get-ADUser -Filter "Department -eq 'IT'" -Properties Department, Title | Sort-Object -Property Name | Select-Object Name, SamAccountName, Department, Title | ConvertTo-Html -Title 'Active Directory Users in IT' -PreContent '<h1>Active Directory Users in IT</h1>' | Out-File -FilePath .\ITUsers.html -Encoding UTF8
+
